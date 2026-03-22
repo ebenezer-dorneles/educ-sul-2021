@@ -70,6 +70,12 @@ df_escolas_filtered %>%
   mutate(percentual = scales::percent(total_escolas / sum(total_escolas))) %>%
   arrange(desc(total_escolas))
 
-readr::write_csv(df_escolas_filtered, "data/processed/escolas_sul.csv")
+df_escolas_filtered %>%
+  readr::write_csv("data/processed/escolas_sul.csv")
+
+df_escolas_filtered %>%
+  dplyr::select(CO_ENTIDADE, NO_ENTIDADE, NO_MUNICIPIO, NO_UF) %>%
+  readr::write_csv("data/processed/identificacao_escolas_sul.csv")
+
 
 
