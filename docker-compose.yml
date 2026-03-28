@@ -1,6 +1,6 @@
 services:
   r-base:
-    build: .manifests/r
+    build: .manifests/r-base
     container_name: r-base
     volumes:
       - .:/workspace
