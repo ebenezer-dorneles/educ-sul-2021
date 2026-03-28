@@ -1,47 +1,14 @@
-# Censo Escolar 2025
+# Dados socioeconômicos e educacionais do ano de 2021 e 2022
+O projeto visa realizar as coleta de dados socioeconômicos e educacionais do ano de 2021 e 2022, com o objetivo de analisar e comparar os dados entre os dois anos.
 
-O objetivo deste projeto é analisar os dados do Censo Escolar 2025 da região Sul do Brasil.
+## Processamento
 
-## Estrutura do projeto
-- `renv/` - Diretório que contém as dependências do projeto.
+![alt text](output/figures/flowchart.png)
 
-- `R/` - Diretório que contém os scripts para análise dos dados.
-  - `main.R` - Script principal para baixar os dados do Censo Escolar 2025.
-  - `escolas.R` - Script para análise das escolas.
-  - `plot_escolas.R` - Script para plotar as escolas.
+## Dados
 
-- `data/` - Diretório que contém os dados do Censo Escolar 2025.
-  - `raw/` - Dados brutos do Censo Escolar 2025.
-  - `processed/` - Dados processados do Censo Escolar 2025.
-  
-- `scripts/` - Diretório que contém os scripts para análise dos dados.
-  - `main.R` - Script principal para baixar os dados do Censo Escolar 2025.
-  - `escolas.R` - Script para análise das escolas.
-  - `plot_escolas.R` - Script para plotar as escolas.
+Os dados foram coletados do site do IBGE, na seção de Censo Escolar. Com enfase para a região Sul do Brasil.
 
-## Instalação
+## Limpeza
 
-- Instalar as dependências do projeto:
-
-```bash
-# Instalar as dependências do projeto
-renv::restore()
-```
-
-## Execução
-1. Baixar os dados do Censo Escolar 2025:
-
-```bash
-# Baixar os dados do Censo Escolar 2025
-Rscript scripts/main.R
-```
-
-2. Executar os scripts para análise  das escolas:
-
-```bash
-# Análise das escolas
-Rscript scripts/escolas.R
-
-# Plot das escolas
-Rscript scripts/plot_escolas.R
-```
+A limpeza dos dados foi realizada utilizando o R e o armazena em um banco de dados DuckDB.

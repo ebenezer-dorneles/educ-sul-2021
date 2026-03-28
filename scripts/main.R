@@ -1,11 +1,8 @@
 source("R/packages.R")
 
-download <- new.env()
-data_censo_2025 <- new.env()
+downloader <- new.env()
+select_data <- new.env()
 
-sys.source("R/download.R", envir = download)
-sys.source("R/data.R", envir = data_censo_2025)
-
-download$download_microdata()
-
+sys.source("R/utils/downloader.R", envir = downloader)
+sys.source("R/utils/select_data.R", envir = select_data)
 

@@ -4,8 +4,8 @@ library(dplyr)
 
 #' List all available tables in the raw data directory
 #' @return A character vector containing the names of all CSV files in the raw data directory
-list_tables <- function() {
-  data <- list.files("data/raw/microdados_censo_escolar_2025/dados")
+list_tables <- function(dir_data) {
+  data <- list.files(dir_data)
   
   csv_files <- data[str_detect(data, "\\.csv$")]
   
@@ -15,8 +15,8 @@ list_tables <- function() {
 #' Get a table from the raw data
 #' @param table_name The name of the table to be loaded (e.g., "escolas.csv")
 #' @return A data frame containing the contents of the specified table
-get_table <- function(table_name) {
-  file_path <- paste0("data/raw/microdados_censo_escolar_2025/dados/", table_name)
+get_table <- function(dir_data, table_name) {
+  file_path <- paste0(dir_data, table_name)
   
   data <- read_delim(file_path, 
                      delim = ";",
@@ -31,8 +31,8 @@ get_table <- function(table_name) {
 #' This function lists all available tables and prompts the user to select one 
 #' by entering its corresponding number. It then loads and returns the selected 
 #' table as a data frame.
-get_table_by_cli <- function() {
-  tables <- list_tables()
+get_table_by_cli <- function(dir_data) {
+  tables <- list_tables(dir_data)
   
   cat("Available tables:\n")
   for (i in seq_along(tables)) {
@@ -46,5 +46,5 @@ get_table_by_cli <- function() {
   }
   
   selected_table <- tables[choice]
-  return(get_table(selected_table))
+  return(get_table(dir_data, selected_table))
 }

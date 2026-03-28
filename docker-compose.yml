@@ -1,0 +1,9 @@
+services:
+  r-base:
+    build: .manifests/r
+    container_name: r-base
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
