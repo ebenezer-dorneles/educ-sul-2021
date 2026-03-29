@@ -5,3 +5,8 @@
 /data
 /reports/*.html
 .vscode/
+tests/support/storage/*.zip
+tests/support/storage/*.txt
+tests/support/storage/*.csv
+tests/support/storage/*.db
+tests/support/storage/*.rds
