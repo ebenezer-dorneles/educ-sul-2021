@@ -137,22 +137,10 @@ gc()
 #
 # library(duckdb); library(DBI); library(dplyr)
 #
-# con <- dbConnect(duckdb(), "data/db/ideb_sul.duckdb", read_only = TRUE)
+# con <- dbConnect(duckdb(), "data/db/saeb_sul_2023.duckdb", read_only = TRUE)
 #
 # # Carrega base pronta para modelagem
 # base <- tbl(con, "base_modelagem") |> collect()
-#
-# # Regressão linear simples
-# m1 <- lm(ideb_anos_iniciais ~ pct_superior + in_internet + idhm_2010 + gini,
-#           data = base, na.action = na.omit)
-# summary(m1)
-#
-# # Modelo multinível (escolas aninhadas em municípios)
-# library(lme4)
-# m2 <- lmer(ideb_anos_iniciais ~ pct_superior + in_internet + idhm_2010
-#              + (1 | cod_municipio),
-#            data = base, na.action = na.omit)
-# summary(m2)
 #
 # dbDisconnect(con, shutdown = TRUE)
 # =============================================================================
