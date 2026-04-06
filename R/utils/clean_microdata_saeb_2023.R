@@ -25,7 +25,6 @@ clean_professores <- function(
   return(PROFESSORES)
 }
 
-
 #' @title Clean the microdata saeb 2023
 #' @description Clean the microdata saeb 2023
 #' @param DIR_CENSO_EXTRAIDO Directory where the microdata saeb 2023 is extracted
@@ -79,5 +78,3 @@ clean_alunos <- function(
 
   return(ALUNOS)
 }
-
-
