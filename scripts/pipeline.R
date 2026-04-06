@@ -1,5 +1,19 @@
+clean_environment <- function() {
+  remove(list = ls())
+  gc()
+}
 
-cli::cli_h1("[START] Installing dependencies")
+MSG_STAGE_0 <- "[START] Installing dependencies\n"
+MSG_STAGE_1 <- "[STAGE 1] Setting up the environment\n"
+MSG_STAGE_2 <- "[STAGE 2] Downloading the microdata\n"
+MSG_STAGE_3 <- "[STAGE 3] Unzipping the microdata\n"
+MSG_STAGE_4 <- "[STAGE 4] Data cleaning\n"
+MSG_STAGE_5 <- "[STAGE 5] Creating the database\n"
+MSG_STAGE_6 <- "[STAGE 6] Pipeline completed successfully!"
+
+
+
+cli::cli_h1(MSG_STAGE_0)
 # =============================================================================
 # 0. PACKAGES
 # =============================================================================
@@ -12,7 +26,7 @@ tryCatch({
 })
 
 
-cli::cli_h2("[STAGE 1] Setting up the environment")
+cli::cli_h2(MSG_STAGE_1)
 # =============================================================================
 # 1. SETUP
 # =============================================================================
@@ -22,13 +36,12 @@ tryCatch({
 
   source("R/utils/download_microdata.R")
   source("R/utils/unzip_microdata.R")
-  source("R/utils/clean_microdata_censo_escolar_2023.R")
+  source("R/utils/clean_microdata_saeb_2023.R")
   source("R/utils/database.R")
 
 
   UFS_SUL <- c("41", "42", "43")
 
-  ANO_CENSO  <- 2023
   ANO_SAEB   <- 2023
 
   DIR_ROOT    <- here::here()
@@ -37,85 +50,83 @@ tryCatch({
   DIR_DB      <- fs::path(DIR_ROOT, "data", "db")
 
   fs::dir_create(c(DIR_RAW, DIR_INTERIM, DIR_DB))
-  fs::dir_create(fs::path(DIR_RAW, c("censo_escolar", "saeb")))
+  fs::dir_create(fs::path(DIR_RAW, c("saeb")))
 
-  DB_PATH <- fs::path(DIR_DB, "educ_sul.duckdb")
+  DB_PATH <- fs::path(DIR_DB, glue::glue("saeb_sul_{ANO_SAEB}.duckdb"))
   message("\n✅ Setup completed successfully!\n")
 }, error = function(e) {
   message(paste0("\n❌ Failed to setup: ", e$message, "\n"))
   stop(e)
 })
 
-cli::cli_h2("[STAGE 2]: Downloading the microdata")
+cli::cli_h2(MSG_STAGE_2)
 # =============================================================================
 # 2. DOWNLOAD DOS ARQUIVOS BRUTOS
 # =============================================================================
 
-URL_CENSO <- glue::glue(Sys.getenv("LINK_CENSO_EDUC_2023"))
-ZIP_CENSO  <- fs::path(DIR_RAW, "censo_escolar", glue::glue("censo_{ANO_CENSO}.zip"))
-
 URL_SAEB <- glue::glue(Sys.getenv("LINK_SAEB_2023"))
 ZIP_SAEB <- fs::path(DIR_RAW, "saeb", glue::glue("saeb_{ANO_SAEB}.zip"))
 
-download_microdata(URL_CENSO, ZIP_CENSO)
 download_microdata(URL_SAEB, ZIP_SAEB, time_limit = 3000)
 
-
-cli::cli_h2("[STAGE 3]: Unzipping the microdata")
+cli::cli_h2(MSG_STAGE_3)
 # =============================================================================
-# 3. EXTRAÇÃO — CENSO ESCOLAR
+# 3. EXTRAÇÃO
 # =============================================================================
-
-DIR_CENSO_EXTRAIDO <- fs::path(DIR_RAW, "censo_escolar", as.character(ANO_CENSO))
-fs::dir_create(DIR_CENSO_EXTRAIDO)
 
 DIR_SAEB_EXTRAIDO <- fs::path(DIR_RAW, "saeb", as.character(ANO_SAEB))
 fs::dir_create(DIR_SAEB_EXTRAIDO)
 
-unzip_microdata(ZIP_CENSO, DIR_CENSO_EXTRAIDO)
 unzip_microdata(ZIP_SAEB, DIR_SAEB_EXTRAIDO)
 
-
-cli::cli_h2("[STAGE 4]: Cleaning the data")
+cli::cli_h2(MSG_STAGE_4)
 # =============================================================================
 # 4. LIMPEZA DOS DADOS
 # =============================================================================
 
-ESCOLAS <- clean_escolas(
-  DIR_CENSO_EXTRAIDO,
-  UFS_SUL,
-  ANO_CENSO,
-  force = TRUE
-)
+if (!file.exists(DB_PATH)) {
+  ESCOLAS <- clean_escolas(
+    DIR_SAEB_EXTRAIDO,
+    UFS_SUL,
+    ANO_SAEB
+  )
 
-#PROFESSORES <- clean_professores(
-#  DIR_SAEB_EXTRAIDO,
-#  UFS_SUL,
-#  ANO_SAEB,
-#  DIR_INTERIM,
-#  DB_PATH,
-#  force = TRUE
-#)
-#
-#ALUNOS <- clean_alunos(
-#  DIR_SAEB_EXTRAIDO,
-#  UFS_SUL,
-#  ANO_SAEB,
-#  DIR_INTERIM,
-#  DB_PATH,
-#  force = TRUE
-#)
+  PROFESSORES <- clean_professores(
+    DIR_SAEB_EXTRAIDO,
+    UFS_SUL,
+    ANO_SAEB
+  )
 
-cli::cli_h2("[STAGE 5]: Creating the database")
+  ALUNOS <- clean_alunos(
+    DIR_SAEB_EXTRAIDO,
+    UFS_SUL,
+    ANO_SAEB
+  )
+} else {
+  message("\n✅ Data cleaning already completed!\n")
+}
+
+cli::cli_h2(MSG_STAGE_5)
 # =============================================================================
 # 5. CREATING THE DATABASE
 # =============================================================================
 
-con <- DBI::dbConnect(duckdb::duckdb(), DB_PATH)
+if (!file.exists(DB_PATH)) {
+  con <- DBI::dbConnect(duckdb::duckdb(), DB_PATH)
 
-save_table(con, ESCOLAS, "escolas", "CO_ENTIDADE")
-#gravar_tabela(con, docentes_agg,   "docentes_agg",  "CO_ENTIDADE")
-#gravar_tabela(con, ideb_completo,  "ideb",          "co_entidade")
+  save_table(con, ESCOLAS, "escolas", "ID_ESCOLA")
+  save_table(con, PROFESSORES, "professores", "ID_ESCOLA")
+  save_table(con, ALUNOS, "alunos", "ID_ESCOLA")
+} else {
+  message("\n✅ Database already exists!\n")
+}
 
 
-cli::cli_h1("\n✅ [PIPELINE] completed successfully! Database saved in {.file {DB_PATH}}")
+cli::cli_h1(glue::glue("{MSG_STAGE_6} Database saved in {DB_PATH}"))
+# =============================================================================
+# 6. CLEANING THE ENVIRONMENT
+# =============================================================================
+message("\nCleaning the environment... \n")
+tables <- c("PROFESSORES", "ESCOLAS", "ALUNOS")
+remove(tables)
+gc()
