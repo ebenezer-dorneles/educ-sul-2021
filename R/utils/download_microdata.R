@@ -1,6 +1,3 @@
-library(httr2)
-library(fs)
-
 #' @description Download the microdata
 #' @param url The URL of the microdata
 #' @param dest The directory to save the microdata
