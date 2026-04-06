@@ -1,5 +1,5 @@
 pkgs <- c(
-  "httr2", "readr", "dplyr", "ggplot2", "tidyr",
+  "httr2", "readr", "dplyr", "dbplyr", "ggplot2", "tidyr",
   "stringr", "dotenv", "geobr", "cli", "fs",
   "purrr", "data.table", "readxl", "duckdb",
   "DBI", "here", "glue"
