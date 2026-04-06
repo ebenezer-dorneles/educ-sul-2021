@@ -1,8 +1,3 @@
-clean_environment <- function() {
-  remove(list = ls())
-  gc()
-}
-
 MSG_STAGE_0 <- "[START] Installing dependencies\n"
 MSG_STAGE_1 <- "[STAGE 1] Setting up the environment\n"
 MSG_STAGE_2 <- "[STAGE 2] Downloading the microdata\n"
@@ -10,8 +5,6 @@ MSG_STAGE_3 <- "[STAGE 3] Unzipping the microdata\n"
 MSG_STAGE_4 <- "[STAGE 4] Data cleaning\n"
 MSG_STAGE_5 <- "[STAGE 5] Creating the database\n"
 MSG_STAGE_6 <- "[STAGE 6] Pipeline completed successfully!"
-
-
 
 cli::cli_h1(MSG_STAGE_0)
 # =============================================================================
