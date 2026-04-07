@@ -10,3 +10,4 @@ tests/support/storage/*.txt
 tests/support/storage/*.csv
 tests/support/storage/*.db
 tests/support/storage/*.rds
+/docs/*
