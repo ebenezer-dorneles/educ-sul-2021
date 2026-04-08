@@ -2,7 +2,7 @@ pkgs <- c(
   "httr2", "readr", "dplyr", "dbplyr", "ggplot2", "tidyr",
   "stringr", "dotenv", "geobr", "cli", "fs",
   "purrr", "data.table", "readxl", "duckdb",
-  "DBI", "here", "glue"
+  "DBI", "here", "glue", "knitr"
 )
 
 to_install <- pkgs[!pkgs %in% rownames(installed.packages())]
