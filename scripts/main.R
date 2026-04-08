@@ -1,26 +1,37 @@
 # ANTES DE INICIAR SUA ANALISE, É PRECISO RODAR O PIPELINE.R
 # PARA BAIXAR OS DADOS BRUTOS E CRIAR O BANCO DE DADOS
 
+
+cli::cli_h1('')
+
+cli::cli_h2("RECONHECENDO A BASE DE DADOS")
 con <- DBI::dbConnect(duckdb::duckdb(), "data/db/saeb_sul_2023.duckdb", read_only = TRUE)
 
-DBI::dbListFields(con, "alunos")
-DBI::dbListFields(con, "escolas")
-DBI::dbListFields(con, "professores")
+DBI::dbGetQuery(con, "SELECT COUNT(*) AS n_linhas FROM professores")
+DBI::dbGetQuery(con, "SELECT COUNT(*) AS n_colunas FROM information_schema.columns WHERE table_name = 'professores'")
 
-DBI::dbExecute(con, "DROP VIEW IF EXISTS base_modelagem")
-DBI::dbExecute(con, "
-  CREATE VIEW base_modelagem AS
-  SELECT 
-    a.id_aluno,
-    a.turma,
-    p.nome AS nome_professor,
-    e.nome AS nome_escola
-  FROM alunos a
-  LEFT JOIN professores p 
-    ON a.ID_ESCOLA = p.ID_ESCOLA
-  LEFT JOIN escolas e 
-    ON a.ID_ESCOLA = e.ID_ESCOLA
+cli::cli_h1('')
+
+cli::cli_h2("QUALIDADE")
+DBI::dbGetQuery(con, "
+  SELECT IN_PREENCHIMENTO_QUESTIONARIO, COUNT(*) AS n
+  FROM professores
+  GROUP BY 1
 ")
 
-DBI::dbGetQuery(con, "SELECT * FROM base_modelagem")
+cli::cli_h1('')
+
+cli::cli_h2("PERFIL SOCIODEMOGRÁFICO")
+DBI::dbGetQuery(con, "
+  SELECT TX_Q001 AS sexo, COUNT(*) AS n,
+         ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) AS pct
+  FROM professores
+  WHERE IN_PREENCHIMENTO_QUESTIONARIO = 1
+  GROUP BY 1
+  ORDER BY 2 DESC
+")
+
+cli::cli_h1('')
+
+
 DBI::dbDisconnect(con, shutdown = TRUE)
