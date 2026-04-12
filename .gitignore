@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+/outputs
 /data
 /reports/*.html
 .vscode/
