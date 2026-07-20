@@ -78,3 +78,24 @@ alunos_raw %>%
     ID_SERIE == 13 ~ "3ª/4ª séries do Ensino Médio Integrado",
     .default = "Nope"
   ))
+
+#PERGUNTA: Qual a porcentagem de escolas publicas no saeb 2023?
+  alunos_raw %>% 
+  group_by(IN_PUBLICA, ID_UF) %>% 
+  summarise(total = n(), .groups = "drop") %>% 
+  # Agrupa apenas por UF para que o sum(total) seja o total do Estado
+  group_by(ID_UF) %>% 
+  mutate(percentual_uf = scales::percent(total / sum(total))) %>% 
+  ungroup() %>% # Boa prática: desagrupar ao final das operações
+  mutate(percentual_estado = scales::percent(total / sum(total))) %>% 
+  mutate(IN_PUBLICA = case_when(
+    IN_PUBLICA == 1 ~ 'Publica',
+    IN_PUBLICA == 0 ~ 'Privada',
+    .default  = 'Nope'
+  )) %>% 
+  mutate(ID_UF = case_when(
+    ID_UF == 41L ~ 'Parana',
+    ID_UF == 42L ~ 'Santa Catarina',
+    ID_UF == 43L ~ 'Rio Grande do Sul',
+    .default = 'Nope'
+  ))
