@@ -1,4 +1,4 @@
-pkgs <- c("DBI", "duckdb", "dplyr", "tidyr", "ggplot2",
+pkgs <- c("DBI", "duckdb", "dplyr", "dbplyr", "tidyr", "ggplot2",
           "psych", "lme4", "lmerTest", "performance",
           "scales", "broom.mixed")
 
@@ -39,19 +39,40 @@ dplyr::glimpse(alunos_raw)
 
 # PERGUNTA : Quantos alunos de escolas urbana|rurais?
 alunos_raw %>% 
-  group_by(ID_LOCALIZACAO) %>% 
-  summarise(total = n()) %>% 
+  group_by(ID_LOCALIZACAO, ID_UF) %>% 
+  summarise(total = n(), .groups = "drop") %>% 
+  # Agrupa apenas por UF para que o sum(total) seja o total do Estado
+  group_by(ID_UF) %>% 
+  mutate(percentual_uf = scales::percent(total / sum(total))) %>% 
+  ungroup() %>% # Boa prática: desagrupar ao final das operações
+  mutate(percentual_estado = scales::percent(total / sum(total))) %>% 
   mutate(ID_LOCALIZACAO = case_when(
     ID_LOCALIZACAO == 1 ~ 'Urbana',
     ID_LOCALIZACAO == 2 ~ 'Rural',
     .default  = 'Nope'
+  )) %>% 
+  mutate(ID_UF = case_when(
+    ID_UF == 41L ~ 'Parana',
+    ID_UF == 42L ~ 'Santa Catarina',
+    ID_UF == 43L ~ 'Rio Grande do Sul',
+    .default = 'Nope'
   ))
 
 
 # PERGUNTA : Quantos alunos do ensino médio por tipo de ensino?
 alunos_raw %>% 
-  group_by(ID_SERIE) %>% 
-  summarise(total = n()) %>% 
+  group_by(ID_SERIE, ID_UF) %>% 
+  summarise(total = n(), .groups = "drop") %>% 
+  group_by(ID_UF) %>% 
+  mutate(percentual_uf = scales::percent(total / sum(total))) %>% 
+  ungroup() %>% # Boa prática: desagrupar ao final das operações
+  mutate(percentual_estado = scales::percent(total / sum(total))) %>% 
+  mutate(ID_UF = case_when(
+    ID_UF == 41L ~ 'Parana',
+    ID_UF == 42L ~ 'Santa Catarina',
+    ID_UF == 43L ~ 'Rio Grande do Sul',
+    .default = 'Nope'
+  )) %>% 
   mutate(ID_SERIE = case_when(
     ID_SERIE == 12 ~ "3ª/4ª séries do Ensino Médio Tradicional",
     ID_SERIE == 13 ~ "3ª/4ª séries do Ensino Médio Integrado",
