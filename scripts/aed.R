@@ -1,6 +1,6 @@
 pkgs <- c("DBI", "duckdb", "dplyr", "dbplyr", "tidyr", "ggplot2",
           "psych", "lme4", "lmerTest", "performance",
-          "scales", "broom.mixed")
+          "scales", "broom.mixed", "forcats")
 
 invisible(lapply(pkgs, function(p) {
   if (!require(p, character.only = TRUE, quietly = TRUE))
@@ -99,3 +99,38 @@ alunos_raw %>%
     ID_UF == 43L ~ 'Rio Grande do Sul',
     .default = 'Nope'
   ))
+
+  # Pegunta qual o nivel socioeconomico dos estudantes?
+alunos_raw %>% 
+  group_by(NU_TIPO_NIVEL_INSE) %>% 
+  summarise(total = n(), .groups = "drop") %>% 
+  mutate(
+    # 1. Mantém a proporção numérico-contínua (ex: 0.15)
+    percentual = total / sum(total),
+    
+    # 2. Converte para Factor mantendo a ordem correta dos níveis socioeconômicos
+    NU_TIPO_NIVEL_INSE_STR = factor(
+      NU_TIPO_NIVEL_INSE,
+      levels = 1:7,
+      labels = c('Muito Baixo', 'Baixo', 'Médio Baixo', 'Médio', 'Médio Alto', 'Alto', 'Muito Alto')
+    )
+  ) %>% 
+  # Opcional: remove registros com códigos fora do intervalo 1-7 (como os que davam 'Nope')
+  drop_na(NU_TIPO_NIVEL_INSE_STR) %>% 
+  ggplot(aes(x = NU_TIPO_NIVEL_INSE_STR, y = percentual, fill = NU_TIPO_NIVEL_INSE_STR)) + 
+    geom_col() + 
+    # Formata a escala do eixo Y para porcentagem corretamente
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+    labs(
+      subtitle = "Nível Socioeconômico dos Estudantes",
+      x = "Nível Socioeconômico",
+      y = "Percentual"
+    ) + 
+    scale_fill_brewer(palette = "Set3") + 
+    theme_minimal() + 
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.position = "none" # Opcional: remove a legenda lateral, já que o eixo X já identifica as cores
+    )
+   
+  

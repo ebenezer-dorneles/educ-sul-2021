@@ -10,3 +10,5 @@ O objeto `alunos_raw` é um dataframe que contém informações sobre alunos do 
     - Há poucas escolas no Ensino Tradicional abaixo de 13% para as regiôes sul. Enquanto a grande maioria dos alunos do ensino médio do sul do Brasil são de escolas integrais Com mais de 87% em cada estado. 
 3. Qual a porcentagem de escolas publicas no saeb 2023?
     - A maioria das escolas são publicas com mais de 96% em cada estado.
+4. Qual nivel socioeconomico dos estudantes?
+    - Mais de 15% das dos estudantes estão acima do nivel socioeconomico medio.
